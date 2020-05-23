@@ -1,0 +1,6 @@
+.DS_Store
+env/
+node_modules/
+title.basics.tsv
+title.ratings.tsv
+titles_and_ratings.tsv
