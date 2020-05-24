@@ -28,6 +28,7 @@ df1 = df1.drop(df1.columns[[3, 4, 6, 7, 8]], axis=1)
 df3 = pd.merge(df1, df2, on="tconst", how="left")
 df3 = df3.loc[df3["titleType"] == "movie"]
 df3 = df3.drop(df3.columns[1], axis=1)
+df3 = df3.fillna(0)
 
 trie = {}
 dataset = {}
@@ -54,8 +55,8 @@ for row in df3.itertuples():
     add_to_dataset(
         row.tconst,
         row.primaryTitle,
-        row.startYear,
-        (row.averageRating * row.numVotes),
+        str(row.startYear),
+        int(row.averageRating) * int(row.numVotes),
     )
 
 print("writing autocomplete_trie")
