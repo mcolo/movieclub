@@ -29,6 +29,9 @@ df3 = pd.merge(df1, df2, on="tconst", how="left")
 df3 = df3.loc[df3["titleType"] == "movie"]
 df3 = df3.drop(df3.columns[1], axis=1)
 
+trie = {}
+dataset = {}
+
 
 def add_to_trie(title, id):
     node = trie
@@ -44,9 +47,6 @@ def add_to_trie(title, id):
 def add_to_dataset(id, title, year, weighted_rating):
     dataset[id] = {"t": title, "y": year, "r": weighted_rating}
 
-
-trie = {}
-dataset = {}
 
 print("buildling trie and dataset")
 for row in df3.itertuples():
