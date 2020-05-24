@@ -1,13 +1,14 @@
-const trie = require('../../movieTitleTrie.json')
+const trie = require('../../../data/autocomplete_trie.json')
 
 module.exports = {
   suggestions: (str) => {
     let response = [];
+    str = str.toLowerCase();
     try {
       const startNode = str.split('')
         .reduce( (node, char) => {
           return node[char];
-        }, trie.root);
+        }, trie);
       response = _getIds(startNode);
       return response;
     } catch(err) {

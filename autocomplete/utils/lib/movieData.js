@@ -1,4 +1,4 @@
-const movieData = require('../../imdbData.json')
+const movieData = require('../../../data/autocomplete_dataset.json')
 
 module.exports = {
   getMovieData: (ids) => {
