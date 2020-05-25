@@ -5,7 +5,7 @@ import gzip
 import json
 import csv
 
-print("request imdb data")
+print("fetch imdb data")
 basics_gz = requests.get(
     "https://datasets.imdbws.com/title.basics.tsv.gz", stream=True
 )
@@ -39,15 +39,15 @@ def add_to_trie(title, id):
 
 print("loop data, build trie and dataset")
 for line in basics:
-    line = line.split('\t')
-    if line[1] == 'movie':
+    line = line.split("\t")
+    if line[1] == "movie":
         add_to_trie(line[2], line[0])
         dataset[line[0]] = {"t": line[2], "y": line[5]}
 
 for line in ratings:
-    line = line.split('\t')
+    line = line.split("\t")
     if line[0] in dataset:
-        dataset[line[0]]['r'] = float(line[1]) * int(line[2])
+        dataset[line[0]]["r"] = float(line[1]) * int(line[2])
 
 print("writing autocomplete_trie")
 with open("autocomplete_trie.json", "w") as f:
