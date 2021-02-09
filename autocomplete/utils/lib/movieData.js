@@ -13,7 +13,7 @@ module.exports = {
         })
       }
     })
-    data.sort( (a,b) => b.rating - a.rating);
+    // data.sort( (a,b) => b.rating - a.rating);
     data.splice(9, data.length-10);
     return data;
   }

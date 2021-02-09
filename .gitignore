@@ -4,3 +4,4 @@ node_modules/
 autocomplete_dataset.json
 autocomplete_trie.json
 upload/
+.env

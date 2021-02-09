@@ -1,34 +1,85 @@
-const express = require('express')
-const app = express()
-const bodyParser = require('body-parser')
-const port = 3000
-const trieUtils = require('./utils/index').Trie
-const movieUtils = require('./utils/index').Movies
-const cors = require('cors')
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
+const port = 3000;
+const trieUtils = require("./utils/index").Trie;
+const movieUtils = require("./utils/index").Movies;
+const cors = require("cors");
+const axios = require("axios").default;
+require("dotenv").config();
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
-var whitelist = ['http://localhost:8080', 'http://localhost']
-var corsOptions = {
+const whitelist = [
+  "http://localhost:8080",
+  "http://localhost",
+  "http://192.168.1.2:8080",
+  "http://192.168.1.2",
+  "http://127.0.0.1:8080",
+  "http://169.254.126.135:8080",
+];
+const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(new Error("Not allowed by CORS"));
     }
+  },
+};
+
+app.options("/search/", cors(corsOptions));
+app.options("/movieData/", cors(corsOptions));
+
+app.post("/search/", cors(corsOptions), (req, res) => {
+  const prefix = req.body.prefix;
+  const ids = trieUtils.suggestions(prefix);
+  if (ids) {
+    const movieData = movieUtils.getMovieData(ids);
+    res.send({
+      movieData,
+    });
+  } else {
+    res.status(404).send();
   }
+});
+
+app.post("/movieData/", cors(corsOptions), (req, res) => {
+  const ids = req.body.ids;
+  if (ids.length > 10) {
+    res.status(500).send("Cannot fetch more than 10 ids at a time.");
+  }
+  if (!ids || ids.length < 1) {
+    res.status(500).send("No ids were requested");
+  }
+  const movieDataPromises = ids.map((id) => getMovieData(id));
+  Promise.all(movieDataPromises)
+    .then((movieData) => {
+      res.send(movieData);
+    })
+    .catch((err) => res.status(500).send("Fetching movie data failed"));
+});
+
+function getMovieData(id) {
+  const options = {
+    method: "GET",
+    url: "https://movie-database-imdb-alternative.p.rapidapi.com/",
+    params: { i: "", r: "json" },
+    headers: {
+      "x-rapidapi-key": process.env.RAPID_API_KEY,
+      "x-rapidapi-host": process.env.RAPID_API_HOST,
+    },
+  };
+
+  options.params.i = id;
+  return axios
+    .request(options)
+    .then(function (res) {
+      return res.data;
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
 }
 
-app.options('/search', cors(corsOptions))
-
-app.post('/search', cors(corsOptions), (req, res) => {
-  const prefix = req.body.prefix;
-  console.log('PREFIX:' + prefix)
-  const ids = trieUtils.suggestions(prefix);
-  const movieData = movieUtils.getMovieData(ids);
-  res.send({
-    movieData
-  })
-})
-
-app.listen(port, () => console.log(`listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`listening at http://localhost:${port}`));
