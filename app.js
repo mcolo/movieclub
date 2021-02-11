@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const port = 3000;
+const port = process.env.PORT || 3000;
 const trieUtils = require("./utils/index").Trie;
 const movieUtils = require("./utils/index").Movies;
 const cors = require("cors");
