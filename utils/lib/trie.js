@@ -1,4 +1,4 @@
-const trie = require("../../../data/autocomplete_trie.json");
+const trie = require("../../data/autocomplete_trie.json");
 
 module.exports = {
   suggestions: (str) => {
