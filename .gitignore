@@ -5,3 +5,4 @@ autocomplete_dataset.json
 autocomplete_trie.json
 upload/
 .env
+npm-debug.log
