@@ -17,6 +17,7 @@ const whitelist = [
   "http://192.168.1.2",
   "http://127.0.0.1:8080",
   "http://169.254.126.135:8080",
+  "https://competent-jackson-ccddd8.netlify.app/",
 ];
 const corsOptions = {
   origin: function (origin, callback) {
