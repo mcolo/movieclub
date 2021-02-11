@@ -1,30 +1,29 @@
-const trie = require('../../../data/autocomplete_trie.json')
+const trie = require("../../../data/autocomplete_trie.json");
 
 module.exports = {
   suggestions: (str) => {
     let response = [];
     str = str.toLowerCase();
     try {
-      const startNode = str.split('')
-        .reduce( (node, char) => {
-          return node[char];
-        }, trie);
+      const startNode = str.split("").reduce((node, char) => {
+        return node[char];
+      }, trie);
       response = _getIds(startNode);
       return response;
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       return null;
     }
-  }
-}
+  },
+};
 
 function _getIds(obj, ids = []) {
-  if (obj['ids']) {
-    ids.push(...obj['ids']);
+  if (obj["ids"]) {
+    ids.push(...obj["ids"]);
   }
 
   for (let prop in obj) {
-    if (prop !== 'ids') {
+    if (prop !== "ids") {
       _getIds(obj[prop], ids);
     }
   }

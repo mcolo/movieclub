@@ -24,10 +24,12 @@ ratings = StringIO(ratings)
 
 trie = {}
 dataset = {}
+cleanset = {}
+cleantrie = {}
 
 
-def add_to_trie(title, id):
-    node = trie
+def add_to_trie(title, id, t):
+    node = t
     title = unidecode(title)
     title = title.lower()
     for c in title:
@@ -41,18 +43,27 @@ print("loop data, build trie and dataset")
 for line in basics:
     line = line.split("\t")
     if line[1] == "movie":
-        add_to_trie(line[2], line[0])
+        add_to_trie(line[2], line[0], trie)
         dataset[line[0]] = {"t": line[2], "y": line[5]}
 
 for line in ratings:
     line = line.split("\t")
     if line[0] in dataset:
-        dataset[line[0]]["r"] = float(line[1]) * int(line[2])
+        # dataset[line[0]]["r"] = float(line[1]) * int(line[2])
+        cleanset[line[0]] = dataset[line[0]]
+
+# for key,val in dataset.items():
+#     if "r" in val:
+#         cleanset[key] = val
+
+for key,val in cleanset.items():
+    add_to_trie(val["t"], key, cleantrie)
+    # key is id, val.t is title
 
 print("writing autocomplete_trie")
 with open("autocomplete_trie.json", "w") as f:
-    json.dump(trie, f)
+    json.dump(cleantrie, f)
 
 print("writing autocomplete_dataset")
 with open("autocomplete_dataset.json", "w") as f:
-    json.dump(dataset, f)
+    json.dump(cleanset, f)
