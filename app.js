@@ -45,6 +45,25 @@ app.post("/search/", cors(corsOptions), (req, res) => {
   }
 });
 
+// app.post("/savePicks", cors(corsOptions), (req, res) => {
+//   const picks = req.body.picks;
+//   const id = req.body.id;
+//   const title = req.body.title;
+//   if (!picks) res.status(400).send("No ids in request");
+
+//   if (id) {
+//     // update picks
+//     // set picks = picks and title = title where id = id
+//   } else {
+//     // insert picks into database, get back picks id
+//     // send picks id back
+//   }
+// });
+
+// app.get("/picks/:id", cors(corsOptions), (req, res) => {
+//   // get picks and title from database where id = id
+// });
+
 app.post("/movieData/", cors(corsOptions), (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
