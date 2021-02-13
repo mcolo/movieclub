@@ -39,6 +39,7 @@ const corsOptions = {
 
 app.options("/search/", cors(corsOptions));
 app.options("/movieData/", cors(corsOptions));
+app.options("/picks/", cors(corsOptions));
 
 app.post("/search/", cors(corsOptions), (req, res) => {
   const prefix = req.body.prefix;
@@ -69,8 +70,8 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 //   }
 // });
 
-app.post("/picks/", cors(corsOptions), (req, res) => {
-  const prefix = req.body.id;
+app.get("/picks/:id", cors(corsOptions), (req, res) => {
+  const id = req.params.id;
   if (!id) {
     res.status(404).send("No id queried.");
   }
