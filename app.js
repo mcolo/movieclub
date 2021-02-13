@@ -8,6 +8,7 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
+const { response } = require("express");
 
 app.use(bodyParser.json());
 
@@ -46,20 +47,51 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 });
 
 // todo
-// app.post("/savePicks", cors(corsOptions), (req, res) => {
-//   const picks = req.body.picks;
-//   const id = req.body.id;
-//   const title = req.body.title;
-//   if (!picks) res.status(400).send("No ids in request");
+app.post("/savePicks", cors(corsOptions), (req, res) => {
+  const picks = req.body.picks;
+  const id = req.body.id;
+  const title = req.body.title;
+  if (!picks) res.status(400).send("No ids in request");
 
-//   if (id) {
-//     // update picks
-//     // set picks = picks and title = title where id = id
-//   } else {
-//     // insert picks into database, get back picks id
-//     // send picks id back
-//   }
-// });
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  client.connect();
+
+  if (id) {
+    // update picks
+    // set picks = picks and title = title where id = id
+    client.query(
+      `UPDATE picks SET picks = ${picks}, title = ${title} WHERE id = ${id}`,
+      (err, result) => {
+        if (err) {
+          res.status(500).send("update failed");
+          throw err;
+        }
+        res.send({ message: "update successful" });
+      }
+    );
+  } else {
+    client.query(
+      `INSERT INTO picks (picks, title) values (${JSON.stringify(
+        picks
+      )}, ${title}) RETURNING id`,
+      (err, results) => {
+        if (err) {
+          res.status(500).send("insert failed");
+          throw err;
+        }
+        res.send({ id: results.rows[0].id });
+      }
+    );
+    // insert picks into database, get back picks id
+    // send picks id back
+  }
+});
 
 app.get("/picks/:id", cors(corsOptions), (req, res) => {
   const id = req.params.id;
@@ -81,7 +113,7 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
       res.status(500).send("we have a problem");
       throw err;
     }
-    res.send(JSON.stringify(result.rows[0]));
+    res.send(result.rows[0]);
     client.end();
   });
 });
