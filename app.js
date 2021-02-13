@@ -9,13 +9,6 @@ const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
 
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
 app.use(bodyParser.json());
 
 const whitelist = [
@@ -73,6 +66,13 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
   if (!id) {
     res.status(404).send("No id queried.");
   }
+
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
 
   client.connect();
 
