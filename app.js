@@ -66,7 +66,8 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
     // update picks
     // set picks = picks and title = title where id = id
     client.query(
-      `UPDATE picks SET picks = ${picks}, title = ${title} WHERE id = ${id}`,
+      `UPDATE picks SET picks=$1, title=$2 WHERE id=$3`,
+      [picks, title, id],
       (err, result) => {
         if (err) {
           res.status(500).send("update failed");
@@ -77,7 +78,8 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
     );
   } else {
     client.query(
-      `INSERT INTO picks (picks, title) values (${picks}, ${title}) RETURNING id`,
+      `INSERT INTO picks (picks, title) values ($1, $2) RETURNING id`,
+      [picks, title],
       (err, results) => {
         if (err) {
           res.status(500).send("insert failed");
