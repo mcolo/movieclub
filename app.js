@@ -8,7 +8,6 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
-const { response } = require("express");
 
 app.use(bodyParser.json());
 
@@ -46,7 +45,6 @@ app.post("/search/", cors(corsOptions), (req, res) => {
   }
 });
 
-// todo
 app.post("/savePicks", cors(corsOptions), (req, res) => {
   const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
@@ -121,10 +119,10 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
 app.post("/movieData/", cors(corsOptions), (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
-    res.status(500).send("Cannot fetch more than 10 ids at a time.");
+    res.status(400).send("Cannot fetch more than 10 ids at a time.");
   }
   if (!ids || ids.length < 1) {
-    res.status(500).send("No ids were requested");
+    res.status(400).send("No ids were requested");
   }
   const movieDataPromises = ids.map((id) => getMovieData(id));
   Promise.all(movieDataPromises)
