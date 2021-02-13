@@ -69,8 +69,8 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 //   }
 // });
 
-app.get("/picks/:id", cors(corsOptions), (req, res) => {
-  const id = req.params.id;
+app.post("/picks/", cors(corsOptions), (req, res) => {
+  const prefix = req.body.id;
   if (!id) {
     res.status(404).send("No id queried.");
   }
