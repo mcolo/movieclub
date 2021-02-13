@@ -37,11 +37,9 @@ const corsOptions = {
   },
 };
 
-app.options("/search/", cors(corsOptions));
-app.options("/movieData/", cors(corsOptions));
-app.options("/picks/", cors(corsOptions));
+app.options("*", cors(corsOptions));
 
-app.post("/search/", cors(corsOptions), (req, res) => {
+app.post("/search/", (req, res) => {
   const prefix = req.body.prefix;
   const ids = trieUtils.suggestions(prefix);
   if (ids) {
@@ -70,7 +68,7 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 //   }
 // });
 
-app.get("/picks/:id", cors(corsOptions), (req, res) => {
+app.get("/picks/:id", (req, res) => {
   const id = req.params.id;
   if (!id) {
     res.status(404).send("No id queried.");
@@ -85,7 +83,7 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
   });
 });
 
-app.post("/movieData/", cors(corsOptions), (req, res) => {
+app.post("/movieData/", (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
     res.status(500).send("Cannot fetch more than 10 ids at a time.");
