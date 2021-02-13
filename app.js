@@ -8,6 +8,7 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
+require("./keepAlive");
 
 app.use(bodyParser.json());
 
