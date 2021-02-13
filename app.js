@@ -122,7 +122,7 @@ app.post("/movieData/", cors(corsOptions), (req, res) => {
     res.status(400).send("Cannot fetch more than 10 ids at a time.");
   }
   if (!ids || ids.length < 1) {
-    res.status(400).send("No ids were requested");
+    res.status(404).send("No ids were requested");
   }
   const movieDataPromises = ids.map((id) => getMovieData(id));
   Promise.all(movieDataPromises)
