@@ -45,6 +45,11 @@ app.post("/search/", cors(corsOptions), (req, res) => {
   }
 });
 
+app.get("/keepalive", (req, res) => {
+  console.log("keepalive");
+  res.send({ boop: "snoot" });
+});
+
 app.post("/savePicks", cors(corsOptions), (req, res) => {
   const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
