@@ -1,4 +1,5 @@
 const cronJob = require("cron").CronJob;
+const axios = require("axios").default;
 
 (() => {
   const job = new cronJob("0 */1 * * * *", () => {
