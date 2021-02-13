@@ -48,7 +48,7 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 
 // todo
 app.post("/savePicks", cors(corsOptions), (req, res) => {
-  const picks = req.body.picks;
+  const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
   const title = req.body.title;
   if (!picks) res.status(400).send("No ids in request");
@@ -77,9 +77,7 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
     );
   } else {
     client.query(
-      `INSERT INTO picks (picks, title) values (${JSON.stringify(
-        picks
-      )}, ${title}) RETURNING id`,
+      `INSERT INTO picks (picks, title) values (${picks}, ${title}) RETURNING id`,
       (err, results) => {
         if (err) {
           res.status(500).send("insert failed");
