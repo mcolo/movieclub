@@ -7,6 +7,14 @@ const movieUtils = require("./utils/index").Movies;
 const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
+const { Client } = require("pg");
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
 
 app.use(bodyParser.json());
 
@@ -61,9 +69,20 @@ app.post("/search/", cors(corsOptions), (req, res) => {
 //   }
 // });
 
-// app.get("/picks/:id", cors(corsOptions), (req, res) => {
-//   // get picks and title from database where id = id
-// });
+app.get("/picks/:id", cors(corsOptions), (req, res) => {
+  const id = req.params.id;
+  if (!id) {
+    res.status(404).send("No id queried.");
+  }
+
+  client.connect();
+
+  client.query(`SELECT * FROM picks WHERE id = ${id};`, (err, result) => {
+    if (err) throw err;
+    client.end();
+    res.send(JSON.stringify(result.rows[0]));
+  });
+});
 
 app.post("/movieData/", cors(corsOptions), (req, res) => {
   const ids = req.body.ids;
