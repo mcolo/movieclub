@@ -77,9 +77,12 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
   client.connect();
 
   client.query(`SELECT * FROM picks WHERE id = ${id};`, (err, result) => {
-    if (err) throw err;
-    client.end();
+    if (err) {
+      res.status(500).send("we have a problem");
+      throw err;
+    }
     res.send(JSON.stringify(result.rows[0]));
+    client.end();
   });
 });
 
