@@ -10,7 +10,7 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
-import { startCronJob } from "./keepalive.js";
+import { startCronJob } from "./utils/keepAlive.js";
 
 // prevent heroku dyno from sleeping
 startCronJob;
