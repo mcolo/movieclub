@@ -1,16 +1,15 @@
-console.log("\n\nVERSION: " + process.version + "\n\n");
-
 import express from "express";
-const app = express();
 import bodyParser from "body-parser";
-const port = process.env.PORT || 3000;
-const trieUtils = require("./utils/index").Trie;
-const movieUtils = require("./utils/index").Movies;
+import { suggestions } from "./utils/lib/trie.js";
+import { getMovieData } from "./utils/lib/movieData.js";
 import cors from "cors";
 import axios from "axios";
-require("dotenv").config();
-const { Client } = require("pg");
+import "dotenv/config.js";
+import { Client } from "pg";
 import { startCronJob } from "./utils/keepAlive.js";
+
+const app = express();
+const port = process.env.PORT || 3000;
 
 // prevent heroku dyno from sleeping
 startCronJob;
@@ -41,9 +40,9 @@ app.options("*", cors(corsOptions));
 
 app.post("/search/", cors(corsOptions), (req, res) => {
   const prefix = req.body.prefix;
-  const ids = trieUtils.suggestions(prefix);
+  const ids = suggestions(prefix);
   if (ids) {
-    const movieData = movieUtils.getMovieData(ids);
+    const movieData = getMovieData(ids);
     res.send({
       movieData,
     });
@@ -136,7 +135,7 @@ app.post("/movieData/", cors(corsOptions), (req, res) => {
   if (!ids || ids.length < 1) {
     res.status(404).send("No ids were requested");
   }
-  const movieDataPromises = ids.map((id) => getMovieData(id));
+  const movieDataPromises = ids.map((id) => getMovieDataFromImdb(id));
   Promise.all(movieDataPromises)
     .then((movieData) => {
       res.send(movieData);
@@ -144,7 +143,7 @@ app.post("/movieData/", cors(corsOptions), (req, res) => {
     .catch((err) => res.status(500).send("Fetching movie data failed"));
 });
 
-function getMovieData(id) {
+function getMovieDataFromImdb(id) {
   const options = {
     method: "GET",
     url: "https://movie-database-imdb-alternative.p.rapidapi.com/",
