@@ -8,7 +8,9 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
-require("./keepAlive");
+const { startCronJob } = require("./keepalive");
+
+startCronJob();
 
 app.use(bodyParser.json());
 
@@ -46,8 +48,8 @@ app.post("/search/", cors(corsOptions), (req, res) => {
   }
 });
 
-app.get("/keepalive", (req, res) => {
-  console.log("keepalive");
+app.get("/keepAlive", (req, res) => {
+  console.log("i'm alive");
   res.send({ boop: "snoot" });
 });
 
