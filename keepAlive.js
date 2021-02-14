@@ -15,7 +15,7 @@ const axios = require("axios").default;
 //   job.start();
 // })();
 
-export const startCronJob = () => {
+function startCronJob() {
   const job = new cronJob("0 */1 * * * *", () => {
     axios
       .get("https://fathomless-reaches-08772.herokuapp.com/keepAlive")
@@ -27,4 +27,6 @@ export const startCronJob = () => {
   });
 
   job.start();
-};
+}
+
+exports.startCronJob = startCronJob;

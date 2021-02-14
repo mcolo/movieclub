@@ -8,9 +8,9 @@ const cors = require("cors");
 const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
-const { startCronJob } = require("./keepAlive");
+const keepAlive = require("./keepAlive");
 
-startCronJob();
+keepAlive.startCronJob();
 
 app.use(bodyParser.json());
 
