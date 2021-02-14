@@ -1,3 +1,5 @@
+console.log("\n\nVERSION: " + process.version + "\n\n");
+
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
@@ -9,8 +11,6 @@ const axios = require("axios").default;
 require("dotenv").config();
 const { Client } = require("pg");
 import { startCronJob } from "./keepAlive";
-
-console.log(process.version);
 
 // prevent heroku dyno from sleeping
 startCronJob();
