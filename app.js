@@ -10,6 +10,7 @@ require("dotenv").config();
 const { Client } = require("pg");
 const keepAlive = require("./keepAlive");
 
+// prevent heroku dyno from sleeping
 keepAlive.startCronJob();
 
 app.use(bodyParser.json());
@@ -23,6 +24,7 @@ const whitelist = [
   "http://169.254.126.135:8080",
   "https://competent-jackson-ccddd8.netlify.app",
 ];
+
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
