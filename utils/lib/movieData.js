@@ -1,6 +1,10 @@
-import movieData from "../../data/autocomplete_dataset.json";
+import fs from "fs";
 
 export const getMovieData = (ids) => {
+  const movieData = fs.readFileSync(
+    "../../data/autocomplete_dataset.json",
+    "utf8"
+  );
   let data = [];
   for (let id of ids) {
     data.push({
