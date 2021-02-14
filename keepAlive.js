@@ -1,18 +1,18 @@
 // const cronJob = require("cron").CronJob;
 // const axios = require("axios").default;
-// // import { CronJob } from "cron";
-// // import axios from "axios";
+import { CronJob } from "cron";
+import axios from "axios";
 
-// export const startCronJob = () => {
-//   const job = new CronJob("0 */1 * * * *", () => {
-//     axios
-//       .get("https://fathomless-reaches-08772.herokuapp.com/keepAlive")
-//       .then((res) => {})
-//       .catch((err) => {
-//         console.log(err);
-//         job.stop();
-//       });
-//   });
+export const startCronJob = () => {
+  const job = new CronJob("0 */1 * * * *", () => {
+    axios
+      .get("https://fathomless-reaches-08772.herokuapp.com/keepAlive")
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+        job.stop();
+      });
+  });
 
-//   job.start();
-// };
+  job.start();
+};
