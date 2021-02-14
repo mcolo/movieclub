@@ -1,7 +1,8 @@
 import fs from "fs";
+let trie = fs.readFileSync("data/autocomplete_trie.json", "utf8");
+trie = JSON.parse(trie);
 
 export const suggestions = (str) => {
-  const trie = fs.readFileSync("data/autocomplete_trie.json", "utf8");
   let response = [];
   str = str.toLowerCase();
   try {

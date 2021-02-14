@@ -1,7 +1,8 @@
 import fs from "fs";
+let movieData = fs.readFileSync("data/autocomplete_dataset.json", "utf8");
+movieData = JSON.parse(movieData);
 
 export const getMovieData = (ids) => {
-  const movieData = fs.readFileSync("data/autocomplete_dataset.json", "utf8");
   let data = [];
   for (let id of ids) {
     data.push({
