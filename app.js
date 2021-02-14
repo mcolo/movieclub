@@ -1,13 +1,13 @@
 console.log("\n\nVERSION: " + process.version + "\n\n");
 
-const express = require("express");
+import express from "express";
 const app = express();
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 const port = process.env.PORT || 3000;
 const trieUtils = require("./utils/index").Trie;
 const movieUtils = require("./utils/index").Movies;
-const cors = require("cors");
-const axios = require("axios").default;
+import cors from "cors";
+import axios from "axios";
 require("dotenv").config();
 const { Client } = require("pg");
 import { startCronJob } from "./utils/keepAlive.js";
