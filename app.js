@@ -4,9 +4,9 @@ import cors from "cors";
 import axios from "axios";
 import pg from "pg";
 import "dotenv/config.js";
-import { suggestions } from "utils/trie.js";
-import { getMovieData } from "utils/movieData.js";
-import { startCronJob } from "utils/keepAlive.js";
+import { suggestions } from "./utils/trie.js";
+import { getMovieData } from "./utils/movieData.js";
+import { startCronJob } from "./utils/keepAlive.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
