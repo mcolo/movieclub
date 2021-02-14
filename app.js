@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // prevent heroku dyno from sleeping
-startCronJob;
+startCronJob();
 
 app.use(bodyParser.json());
 
@@ -70,10 +70,9 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
   });
 
   client.connect();
-
+  // if id is passed, then we are updating that entry
+  // otherwise create a new one
   if (id) {
-    // update picks
-    // set picks = picks and title = title where id = id
     client.query(
       `UPDATE picks SET picks=$1, title=$2 WHERE id=$3`,
       [picks, title, id],
@@ -97,8 +96,6 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
         res.send({ id: results.rows[0].id });
       }
     );
-    // insert picks into database, get back picks id
-    // send picks id back
   }
 });
 
