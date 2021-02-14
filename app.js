@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { suggestions } from "./utils/lib/trie.js";
-import { getMovieData } from "./utils/lib/movieData.js";
+import { suggestions } from "./utils/trie.js";
+import { getMovieData } from "./utils/movieData.js";
 import cors from "cors";
 import axios from "axios";
 import "dotenv/config.js";
