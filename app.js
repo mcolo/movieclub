@@ -1,12 +1,12 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { suggestions } from "./utils/trie.js";
-import { getMovieData } from "./utils/movieData.js";
 import cors from "cors";
 import axios from "axios";
-import "dotenv/config.js";
 import pg from "pg";
-import { startCronJob } from "./utils/keepAlive.js";
+import "dotenv/config.js";
+import { suggestions } from "utils/trie.js";
+import { getMovieData } from "utils/movieData.js";
+import { startCronJob } from "utils/keepAlive.js";
 
 const app = express();
 const port = process.env.PORT || 3000;

@@ -1,5 +1,3 @@
-// const cronJob = require("cron").CronJob;
-// const axios = require("axios").default;
 import { CronJob } from "cron";
 import axios from "axios";
 
