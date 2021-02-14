@@ -10,6 +10,8 @@ require("dotenv").config();
 const { Client } = require("pg");
 import { startCronJob } from "./keepAlive";
 
+console.log(process.version);
+
 // prevent heroku dyno from sleeping
 startCronJob();
 
