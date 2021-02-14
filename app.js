@@ -5,7 +5,7 @@ import { getMovieData } from "./utils/lib/movieData.js";
 import cors from "cors";
 import axios from "axios";
 import "dotenv/config.js";
-import { Client } from "pg";
+import pg from "pg";
 import { startCronJob } from "./utils/keepAlive.js";
 
 const app = express();
@@ -62,7 +62,7 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
   const title = req.body.title;
   if (!picks) res.status(400).send("No ids in request");
 
-  const client = new Client({
+  const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false,
@@ -108,7 +108,7 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
     res.status(404).send("No id queried.");
   }
 
-  const client = new Client({
+  const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false,
