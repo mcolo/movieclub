@@ -3,42 +3,25 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import axios from "axios";
 import pg from "pg";
-import "dotenv/config.js";
+import dotenv from "dotenv";
+import { corsOptions } from "./utils/cors.js";
 import { suggestions } from "./utils/trie.js";
 import { getMovieData } from "./utils/movieData.js";
 import { startCronJob } from "./utils/keepAlive.js";
 
-const app = express();
-const port = process.env.PORT || 3000;
+dotenv.config();
 
 // prevent heroku dyno from sleeping
 startCronJob();
 
+const app = express();
+const port = process.env.PORT || 3000;
+
 app.use(bodyParser.json());
+app.use(cors(corsOptions));
+// app.options("*", cors(corsOptions));
 
-const whitelist = [
-  "http://localhost:8080",
-  "http://localhost",
-  "http://192.168.1.2:8080",
-  "http://192.168.1.2",
-  "http://127.0.0.1:8080",
-  "http://169.254.126.135:8080",
-  "https://competent-jackson-ccddd8.netlify.app",
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
-
-app.options("*", cors(corsOptions));
-
-app.post("/search/", cors(corsOptions), (req, res) => {
+app.post("/search/", (req, res) => {
   const prefix = req.body.prefix;
   const ids = suggestions(prefix);
   if (ids) {
@@ -56,7 +39,7 @@ app.get("/keepAlive", (req, res) => {
   res.send({ boop: "snoot" });
 });
 
-app.post("/savePicks", cors(corsOptions), (req, res) => {
+app.post("/savePicks", (req, res) => {
   const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
   const title = req.body.title;
@@ -99,7 +82,7 @@ app.post("/savePicks", cors(corsOptions), (req, res) => {
   }
 });
 
-app.get("/picks/:id", cors(corsOptions), (req, res) => {
+app.get("/picks/:id", (req, res) => {
   const id = req.params.id;
   if (!id) {
     res.status(404).send("No id queried.");
@@ -124,7 +107,7 @@ app.get("/picks/:id", cors(corsOptions), (req, res) => {
   });
 });
 
-app.post("/movieData/", cors(corsOptions), (req, res) => {
+app.post("/movieData/", (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
     res.status(400).send("Cannot fetch more than 10 ids at a time.");
