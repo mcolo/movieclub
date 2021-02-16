@@ -10,7 +10,6 @@ import { getMovieData } from "./utils/movieData.js";
 import { startCronJob } from "./utils/keepAlive.js";
 
 dotenv.config();
-
 // prevent heroku dyno from sleeping
 startCronJob();
 
@@ -19,7 +18,6 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors(corsOptions));
-// app.options("*", cors(corsOptions));
 
 app.post("/search/", (req, res) => {
   const prefix = req.body.prefix;
