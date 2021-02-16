@@ -17,9 +17,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-app.use(cors(corsOptions));
+app.use("/api/*", cors(corsOptions));
 
-app.post("/search/", (req, res) => {
+app.post("/api/search/", (req, res) => {
   const prefix = req.body.prefix;
   const ids = suggestions(prefix);
   if (ids) {
@@ -37,7 +37,7 @@ app.get("/keepAlive", (req, res) => {
   res.send({ boop: "snoot" });
 });
 
-app.post("/savePicks", (req, res) => {
+app.post("/api/savePicks", (req, res) => {
   const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
   const title = req.body.title;
@@ -80,7 +80,7 @@ app.post("/savePicks", (req, res) => {
   }
 });
 
-app.get("/picks/:id", (req, res) => {
+app.get("/api/picks/:id", (req, res) => {
   const id = req.params.id;
   if (!id) {
     res.status(404).send("No id queried.");
@@ -105,7 +105,7 @@ app.get("/picks/:id", (req, res) => {
   });
 });
 
-app.post("/movieData/", (req, res) => {
+app.post("/api/movieData", (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
     res.status(400).send("Cannot fetch more than 10 ids at a time.");
