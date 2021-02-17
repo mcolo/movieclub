@@ -100,7 +100,9 @@ app.get("/api/picks/:id", (req, res) => {
       res.status(500).send("we have a problem");
       throw err;
     }
-    res.send(result.rows[0]);
+    res.send({
+      pickData: result.rows[0],
+    });
     client.end();
   });
 });
@@ -116,7 +118,9 @@ app.post("/api/movieData", (req, res) => {
   const movieDataPromises = ids.map((id) => getMovieDataFromImdb(id));
   Promise.all(movieDataPromises)
     .then((movieData) => {
-      res.send(movieData);
+      res.send({
+        movieData,
+      });
     })
     .catch((err) => res.status(500).send("Fetching movie data failed"));
 });
