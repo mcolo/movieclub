@@ -19,6 +19,11 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use("/api/*", cors(corsOptions));
 
+app.get("/keepAlive", (req, res) => {
+  console.log("i'm awake");
+  res.send({ boop: "snoot" });
+});
+
 app.post("/api/search/", (req, res) => {
   const prefix = req.body.prefix;
   const ids = suggestions(prefix);
@@ -30,11 +35,6 @@ app.post("/api/search/", (req, res) => {
   } else {
     res.status(404).send();
   }
-});
-
-app.get("/keepAlive", (req, res) => {
-  console.log("i'm alive");
-  res.send({ boop: "snoot" });
 });
 
 app.post("/api/savePicks", (req, res) => {

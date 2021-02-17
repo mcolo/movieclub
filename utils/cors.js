@@ -11,7 +11,6 @@ export const corsOptions = {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log("\n\n ORIGIN: \n " + origin + "\n\n");
       callback(new Error("Not allowed by CORS"));
     }
   },
