@@ -122,7 +122,6 @@ app.get("/api/loadpicks/:id", async (req, res) => {
 
   let pickRes = null;
   try {
-    console.log("\n\n fetching from rapidapi \n\n");
     pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [id]);
     if (!pickRes.rows[0]) {
       res.status(500).send("no picks with that id");
@@ -131,12 +130,15 @@ app.get("/api/loadpicks/:id", async (req, res) => {
     }
   } catch (err) {
     res.status(500).send("failed to do second query");
+    client.end();
+    return;
   }
 
   const picks = JSON.parse(pickRes.rows[0].picks);
   const promiseArr = picks.map((pick) => {
     return getMovieDataFromImdb(pick.id);
   });
+  console.log("\n\n fetching from rapidapi \n\n");
   Promise.all(promiseArr)
     .then(async (movieData) => {
       const dataRes = await client.query(
@@ -149,11 +151,12 @@ app.get("/api/loadpicks/:id", async (req, res) => {
           data: movieData,
         },
       });
+      client.end();
     })
     .catch((err) => {
       res.status(500).send("failed to fetch imdb data");
+      client.end();
     });
-  client.end();
 });
 
 app.post("/api/storeData", (req, res) => {});
