@@ -97,7 +97,7 @@ app.get("/api/picks/:id", (req, res) => {
 
   client.connect();
 
-  client.query(`SELECT * FROM picks WHERE id = ${id};`, (err, result) => {
+  client.query("SELECT * FROM picks WHERE id = $1", [id], (err, result) => {
     if (err) {
       res.status(500).send("we have a problem");
       throw err;
@@ -112,8 +112,25 @@ app.get("/api/picks/:id", (req, res) => {
     const promiseArr = picks.map((pick) => {
       return getMovieDataFromImdb(pick.id);
     });
-    Promise.all(promiseArr).then((movieData) => {
+    Promise.all(promiseArr).then(async (movieData) => {
       response.movieData = movieData;
+      const exists = await client.query(
+        "SELECT exists(select * from moviedata where id = $1)",
+        [id]
+      );
+      if (exists) {
+        // do nothing
+      } else {
+        client.query(
+          "INSERT INTO moviedata (id, data) values ($1, $2) RETURNING id",
+          [id, movieData],
+          (err, result) => {
+            if (err)
+              res.status(500).send("failed to insert new data into moviedata");
+            res.send({ message: "data inserted into " + id });
+          }
+        );
+      }
       res.send({
         data: response,
       });
