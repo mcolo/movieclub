@@ -82,6 +82,53 @@ app.post("/api/savePicks", (req, res) => {
   }
 });
 
+app.get("/api/loadpicks/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!id) res.status(404).send("No id :(");
+
+  const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+
+  client.connect();
+
+  const cachedRes = await client.query(
+    "SELECT * FROM picks, moviedata WHERE picks.id = moviedata.id AND picks.id = $1",
+    [id]
+  );
+  if (cachedRes.rows[0]) {
+    res.send({
+      picks: {
+        title: res.title,
+        data: res.data,
+      },
+    });
+  }
+  const pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [id]);
+  if (!pickRes.rows[0]) {
+    res.status(500).send("no picks with that id");
+  }
+  const picks = JSON.parse(pickRes.rows[0].picks);
+  const promiseArr = picks.map((pick) => {
+    return getMovieDataFromImdb(pick.id);
+  });
+  Promise.all(promiseArr).then(async (movieData) => {
+    const dataRes = await client.query(
+      "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT DO NOTHING",
+      [id, movieData]
+    );
+    res.send({
+      picks: pickRes.rows[0].title,
+      data: movieData,
+    });
+  });
+});
+
+app.post("/api/storeData", (req, res) => {});
+
 app.get("/api/picks/:id", (req, res) => {
   const id = req.params.id;
   if (!id) {
