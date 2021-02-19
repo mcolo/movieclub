@@ -84,7 +84,10 @@ app.post("/api/savePicks", (req, res) => {
 
 app.get("/api/loadpicks/:id", async (req, res) => {
   const id = req.params.id;
-  if (!id) res.status(404).send("No id :(");
+  if (!id) {
+    res.status(404).send("No id :(");
+    return;
+  }
 
   const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
@@ -108,9 +111,11 @@ app.get("/api/loadpicks/:id", async (req, res) => {
           data: cachedRes.rows[0].data,
         },
       });
+      return;
     }
   } catch (err) {
     res.status(500).send("failed to do first query");
+    return;
   }
 
   try {
@@ -119,6 +124,7 @@ app.get("/api/loadpicks/:id", async (req, res) => {
     ]);
     if (!pickRes.rows[0]) {
       res.status(500).send("no picks with that id");
+      return;
     }
     const picks = JSON.parse(pickRes.rows[0].picks);
     const promiseArr = picks.map((pick) => {
