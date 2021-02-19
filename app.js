@@ -120,21 +120,25 @@ app.get("/api/loadpicks/:id", async (req, res) => {
     return;
   }
 
+  let pickRes = null;
   try {
     console.log("\n\n fetching from rapidapi \n\n");
-    const pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [
-      id,
-    ]);
+    pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [id]);
     if (!pickRes.rows[0]) {
       res.status(500).send("no picks with that id");
       client.end();
       return;
     }
-    const picks = JSON.parse(pickRes.rows[0].picks);
-    const promiseArr = picks.map((pick) => {
-      return getMovieDataFromImdb(pick.id);
-    });
-    Promise.all(promiseArr).then(async (movieData) => {
+  } catch (err) {
+    res.status(500).send("failed to do second query");
+  }
+
+  const picks = JSON.parse(pickRes.rows[0].picks);
+  const promiseArr = picks.map((pick) => {
+    return getMovieDataFromImdb(pick.id);
+  });
+  Promise.all(promiseArr)
+    .then(async (movieData) => {
       const dataRes = await client.query(
         "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT (id) DO NOTHING",
         [id, JSON.stringify(movieData)]
@@ -145,10 +149,10 @@ app.get("/api/loadpicks/:id", async (req, res) => {
           data: movieData,
         },
       });
+    })
+    .catch((err) => {
+      res.status(500).send("failed to fetch imdb data");
     });
-  } catch (err) {
-    res.status(500).send("failed to do second query");
-  }
   client.end();
 });
 
