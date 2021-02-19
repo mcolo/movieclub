@@ -103,27 +103,31 @@ app.get("/api/loadpicks/:id", async (req, res) => {
       "SELECT * FROM picks, moviedata WHERE picks.id = moviedata.id AND picks.id = $1",
       [id]
     );
-    console.log("\n\n cachedRes.rows \n" + cachedRes.rows + "\n\n");
     if (cachedRes.rows[0]) {
+      console.log("\n\n sending from cache \n\n");
       res.send({
         picks: {
           title: cachedRes.rows[0].title,
           data: JSON.parse(cachedRes.rows[0].data),
         },
       });
+      client.end();
       return;
     }
   } catch (err) {
     res.status(500).send("failed to do first query");
+    client.end();
     return;
   }
 
   try {
+    console.log("\n\n fetching from rapidapi \n\n");
     const pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [
       id,
     ]);
     if (!pickRes.rows[0]) {
       res.status(500).send("no picks with that id");
+      client.end();
       return;
     }
     const picks = JSON.parse(pickRes.rows[0].picks);
@@ -145,6 +149,7 @@ app.get("/api/loadpicks/:id", async (req, res) => {
   } catch (err) {
     res.status(500).send("failed to do second query");
   }
+  client.end();
 });
 
 app.post("/api/storeData", (req, res) => {});
