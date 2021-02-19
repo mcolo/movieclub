@@ -117,12 +117,14 @@ app.get("/api/loadpicks/:id", async (req, res) => {
   });
   Promise.all(promiseArr).then(async (movieData) => {
     const dataRes = await client.query(
-      "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT DO NOTHING",
-      [id, movieData]
+      "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT (id) DO NOTHING",
+      [id, JSON.stringify(movieData)]
     );
     res.send({
-      picks: pickRes.rows[0].title,
-      data: movieData,
+      picks: {
+        title: pickRes.rows[0].title,
+        data: movieData,
+      },
     });
   });
 });
