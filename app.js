@@ -108,7 +108,7 @@ app.get("/api/loadpicks/:id", async (req, res) => {
       res.send({
         picks: {
           title: cachedRes.rows[0].title,
-          data: cachedRes.rows[0].data,
+          data: JSON.parse(cachedRes.rows[0].data),
         },
       });
       return;
