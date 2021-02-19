@@ -41,7 +41,9 @@ app.post("/api/savePicks", (req, res) => {
   const picks = JSON.stringify(req.body.picks);
   const id = req.body.id;
   const title = req.body.title;
-  if (!picks) res.status(400).send("No ids in request");
+  if (!picks) res.status(500).send("No ids in request");
+  if (picks.length >= 10) res.status(500).send("Too many picks");
+  if (picks.length < 2) res.status(500).send("Not enough picks");
 
   const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
@@ -100,8 +102,20 @@ app.get("/api/picks/:id", (req, res) => {
       res.status(500).send("we have a problem");
       throw err;
     }
-    res.send({
-      pickData: result.rows[0],
+    // res.send({
+    //   pickData: result.rows[0],
+    // });
+
+    const response = {};
+    response.title = result.rows[0].title;
+    const promiseArr = result.rows[0].picks.map((pick) => {
+      return getMovieDataFromImdb(pick.id);
+    });
+    Promise.all(promiseArr).then((movieData) => {
+      response.movieData = movieData;
+      res.send({
+        data: response,
+      });
     });
     client.end();
   });
