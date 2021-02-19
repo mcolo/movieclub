@@ -95,38 +95,50 @@ app.get("/api/loadpicks/:id", async (req, res) => {
 
   client.connect();
 
-  const cachedRes = await client.query(
-    "SELECT * FROM picks, moviedata WHERE picks.id = moviedata.id AND picks.id = $1",
-    [id]
-  );
-  if (cachedRes.rows[0]) {
-    res.send({
-      picks: {
-        title: res.title,
-        data: res.data,
-      },
-    });
-  }
-  const pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [id]);
-  if (!pickRes.rows[0]) {
-    res.status(500).send("no picks with that id");
-  }
-  const picks = JSON.parse(pickRes.rows[0].picks);
-  const promiseArr = picks.map((pick) => {
-    return getMovieDataFromImdb(pick.id);
-  });
-  Promise.all(promiseArr).then(async (movieData) => {
-    const dataRes = await client.query(
-      "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT (id) DO NOTHING",
-      [id, JSON.stringify(movieData)]
+  try {
+    const cachedRes = await client.query(
+      "SELECT * FROM picks, moviedata WHERE picks.id = moviedata.id AND picks.id = $1",
+      [id]
     );
-    res.send({
-      picks: {
-        title: pickRes.rows[0].title,
-        data: movieData,
-      },
+    console.log("\n\n cachedRes.rows \n" + cachedRes.rows + "\n\n");
+    if (cachedRes.rows[0]) {
+      res.send({
+        picks: {
+          title: cachedRes.rows[0].title,
+          data: cachedRes.rows[0].data,
+        },
+      });
+    }
+  } catch (err) {
+    res.status(500).send("failed to do first query");
+  }
+
+  try {
+    const pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [
+      id,
+    ]);
+    if (!pickRes.rows[0]) {
+      res.status(500).send("no picks with that id");
+    }
+    const picks = JSON.parse(pickRes.rows[0].picks);
+    const promiseArr = picks.map((pick) => {
+      return getMovieDataFromImdb(pick.id);
     });
-  });
+    Promise.all(promiseArr).then(async (movieData) => {
+      const dataRes = await client.query(
+        "INSERT INTO moviedata(id, data) VALUES($1, $2) ON CONFLICT (id) DO NOTHING",
+        [id, JSON.stringify(movieData)]
+      );
+      res.send({
+        picks: {
+          title: pickRes.rows[0].title,
+          data: movieData,
+        },
+      });
+    });
+  } catch (err) {
+    res.status(500).send("failed to do second query");
+  }
 });
 
 app.post("/api/storeData", (req, res) => {});
