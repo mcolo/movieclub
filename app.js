@@ -108,7 +108,8 @@ app.get("/api/picks/:id", (req, res) => {
 
     const response = {};
     response.title = result.rows[0].title;
-    const promiseArr = result.rows[0].picks.map((pick) => {
+    const picks = JSON.parse(result.rows[0].picks);
+    const promiseArr = picks.map((pick) => {
       return getMovieDataFromImdb(pick.id);
     });
     Promise.all(promiseArr).then((movieData) => {
