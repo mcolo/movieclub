@@ -45,7 +45,7 @@ app.post("/api/savePicks", (req, res) => {
   if (picks.length >= 10) res.status(500).send("Too many picks");
   if (picks.length < 2) res.status(500).send("Not enough picks");
 
-  // picks = JSON.stringify(picks);
+  picks = JSON.stringify(picks);
 
   const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
