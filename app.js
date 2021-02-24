@@ -138,7 +138,7 @@ app.get("/api/loadpicks/:id", async (req, res) => {
 
   const picks = JSON.parse(pickRes.rows[0].picks);
   const promiseArr = picks.map((pick) => {
-    return getMovieDataFromImdb(pick.id);
+    return getMovieDataFromImdb(pick.imdbID);
   });
   console.log("\n\n fetching from rapidapi \n\n");
   Promise.all(promiseArr)
