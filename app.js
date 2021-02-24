@@ -38,12 +38,14 @@ app.post("/api/search/", (req, res) => {
 });
 
 app.post("/api/savePicks", (req, res) => {
-  const picks = JSON.stringify(req.body.picks);
+  let picks = req.body.picks;
   const id = req.body.id;
   const title = req.body.title;
   if (!picks) res.status(500).send("No ids in request");
   if (picks.length >= 10) res.status(500).send("Too many picks");
   if (picks.length < 2) res.status(500).send("Not enough picks");
+
+  // picks = JSON.stringify(picks);
 
   const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
