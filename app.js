@@ -191,31 +191,37 @@ app.get("/api/picks/:id", (req, res) => {
     response.title = result.rows[0].title;
     const picks = JSON.parse(result.rows[0].picks);
     const promiseArr = picks.map((pick) => {
-      return getMovieDataFromImdb(pick.id);
+      return getMovieDataFromImdb(pick.imdbID);
     });
-    Promise.all(promiseArr).then(async (movieData) => {
-      response.movieData = movieData;
-      const exists = await client.query(
-        "SELECT exists(select * from moviedata where id = $1)",
-        [id]
-      );
-      if (exists) {
-        // do nothing
-      } else {
-        client.query(
-          "INSERT INTO moviedata (id, data) values ($1, $2) RETURNING id",
-          [id, movieData],
-          (err, result) => {
-            if (err)
-              res.status(500).send("failed to insert new data into moviedata");
-            res.send({ message: "data inserted into " + id });
-          }
+    Promise.all(promiseArr)
+      .then(async (movieData) => {
+        response.movieData = movieData;
+        const exists = await client.query(
+          "SELECT exists(select * from moviedata where id = $1)",
+          [id]
         );
-      }
-      res.send({
-        data: response,
+        if (exists) {
+          // do nothing
+        } else {
+          client.query(
+            "INSERT INTO moviedata (id, data) values ($1, $2) RETURNING id",
+            [id, movieData],
+            (err, result) => {
+              if (err)
+                res
+                  .status(500)
+                  .send("failed to insert new data into moviedata");
+              res.send({ message: "data inserted into " + id });
+            }
+          );
+        }
+        res.send({
+          data: response,
+        });
+      })
+      .catch((err) => {
+        client.end();
       });
-    });
     client.end();
   });
 });
