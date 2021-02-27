@@ -4,6 +4,7 @@ const whitelist = [
   "http://192.168.1.2:8080",
   "http://192.168.1.2",
   "https://competent-jackson-ccddd8.netlify.app",
+  "https://movieclub.link",
 ];
 
 export const corsOptions = {
