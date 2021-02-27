@@ -41,9 +41,18 @@ app.post("/api/savePicks", (req, res) => {
   let picks = req.body.picks;
   const id = req.body.id;
   const title = req.body.title;
-  if (!picks) res.status(500).send("No ids in request");
-  if (picks.length >= 10) res.status(500).send("Too many picks");
-  if (picks.length < 2) res.status(500).send("Not enough picks");
+  if (!picks) {
+    res.status(500).send("No ids in request");
+    return;
+  }
+  if (picks.length >= 10) {
+    res.status(500).send("Too many picks");
+    return;
+  }
+  if (picks.length < 2) {
+    res.status(500).send("Not enough picks");
+    return;
+  }
 
   picks = JSON.stringify(picks);
 
