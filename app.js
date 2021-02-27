@@ -42,15 +42,15 @@ app.post("/api/savePicks", (req, res) => {
   const id = req.body.id;
   const title = req.body.title;
   if (!picks) {
-    res.status(500).send("No ids in request");
+    res.status(500).send({ message: "No movies selected" });
     return;
   }
   if (picks.length >= 10) {
-    res.status(500).send("Too many picks");
+    res.status(500).send({ message: "You must select less than 10 movies" });
     return;
   }
   if (picks.length < 2) {
-    res.status(500).send("Not enough picks");
+    res.status(500).send({ message: "You must select more than 1 movie" });
     return;
   }
 
