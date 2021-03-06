@@ -33,7 +33,8 @@ app.post("/api/search/", (req, res) => {
       movieData,
     });
   } else {
-    res.status(404).send();
+    res.status(404).send({ message: "No movies found matching this search" });
+    return;
   }
 });
 
@@ -72,10 +73,10 @@ app.post("/api/savePicks", (req, res) => {
       [picks, title, id],
       (err, result) => {
         if (err) {
-          res.status(500).send("update failed");
+          res.status(500).send({ message: "Update failed" });
           throw err;
         }
-        res.send({ message: "update successful" });
+        res.send({ message: "Update successful" });
       }
     );
   } else {
@@ -84,7 +85,7 @@ app.post("/api/savePicks", (req, res) => {
       [picks, title],
       (err, results) => {
         if (err) {
-          res.status(500).send("insert failed");
+          res.status(500).send({ message: "INSERT query failed" });
           throw err;
         }
         res.send({ id: results.rows[0].id });
@@ -96,7 +97,7 @@ app.post("/api/savePicks", (req, res) => {
 app.get("/api/loadpicks/:id", async (req, res) => {
   const id = req.params.id;
   if (!id) {
-    res.status(404).send("No id :(");
+    res.status(400).send({ message: "No ID was provided" });
     return;
   }
 
@@ -126,7 +127,7 @@ app.get("/api/loadpicks/:id", async (req, res) => {
       return;
     }
   } catch (err) {
-    res.status(500).send("failed to do first query");
+    res.status(500).send({ message: "Failed to do first query" });
     client.end();
     return;
   }
@@ -135,21 +136,27 @@ app.get("/api/loadpicks/:id", async (req, res) => {
   try {
     pickRes = await client.query("SELECT * FROM picks WHERE id = $1", [id]);
     if (!pickRes.rows[0]) {
-      res.status(500).send("no picks with that id");
+      res.status(500).send({ message: "No picks with that ID" });
       client.end();
       return;
     }
   } catch (err) {
-    res.status(500).send("failed to do second query");
+    res.status(500).send({ message: "Failed to do second query" });
     client.end();
     return;
   }
 
-  const picks = JSON.parse(pickRes.rows[0].picks);
+  try {
+    const picks = JSON.parse(pickRes.rows[0].picks);
+    console.log("\n\n fetching from rapidapi \n\n");
+  } catch (err) {
+    res.status(500).send({ message: "Bad data" });
+    client.end();
+    return;
+  }
   const promiseArr = picks.map((pick) => {
     return getMovieDataFromImdb(pick.imdbID);
   });
-  console.log("\n\n fetching from rapidapi \n\n");
   Promise.all(promiseArr)
     .then(async (movieData) => {
       const dataRes = await client.query(
@@ -165,83 +172,22 @@ app.get("/api/loadpicks/:id", async (req, res) => {
       client.end();
     })
     .catch((err) => {
-      res.status(500).send("failed to fetch imdb data");
+      res.status(500).send({ message: "Failed to fetch IMDB data" });
       client.end();
     });
-});
-
-app.post("/api/storeData", (req, res) => {});
-
-app.get("/api/picks/:id", (req, res) => {
-  const id = req.params.id;
-  if (!id) {
-    res.status(404).send("No id queried.");
-  }
-
-  const client = new pg.Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-
-  client.connect();
-
-  client.query("SELECT * FROM picks WHERE id = $1", [id], (err, result) => {
-    if (err) {
-      res.status(500).send("we have a problem");
-      throw err;
-    }
-    // res.send({
-    //   pickData: result.rows[0],
-    // });
-
-    const response = {};
-    response.title = result.rows[0].title;
-    const picks = JSON.parse(result.rows[0].picks);
-    const promiseArr = picks.map((pick) => {
-      return getMovieDataFromImdb(pick.imdbID);
-    });
-    Promise.all(promiseArr)
-      .then(async (movieData) => {
-        response.movieData = movieData;
-        const exists = await client.query(
-          "SELECT exists(select * from moviedata where id = $1)",
-          [id]
-        );
-        if (exists) {
-          // do nothing
-        } else {
-          client.query(
-            "INSERT INTO moviedata (id, data) values ($1, $2) RETURNING id",
-            [id, movieData],
-            (err, result) => {
-              if (err)
-                res
-                  .status(500)
-                  .send("failed to insert new data into moviedata");
-              res.send({ message: "data inserted into " + id });
-            }
-          );
-        }
-        res.send({
-          data: response,
-        });
-      })
-      .catch((err) => {
-        client.end();
-      });
-    client.end();
-  });
 });
 
 app.post("/api/movieData", (req, res) => {
   const ids = req.body.ids;
   if (ids.length > 10) {
-    res.status(400).send("Cannot fetch more than 10 ids at a time.");
+    res
+      .status(400)
+      .send({ message: "Cannot fetch more than 10 ID's at a time." });
+    return;
   }
   if (!ids || ids.length < 1) {
-    res.status(404).send("No ids were requested");
+    res.status(404).send({ message: "No ID's were requested" });
+    return;
   }
   const movieDataPromises = ids.map((id) => getMovieDataFromImdb(id));
   Promise.all(movieDataPromises)
@@ -250,7 +196,10 @@ app.post("/api/movieData", (req, res) => {
         movieData,
       });
     })
-    .catch((err) => res.status(500).send("Fetching movie data failed"));
+    .catch((err) => {
+      res.status(500).send({ message: "Fetching IMDB data failed" });
+      return;
+    });
 });
 
 function getMovieDataFromImdb(id) {
