@@ -146,8 +146,9 @@ app.get("/api/loadpicks/:id", async (req, res) => {
     return;
   }
 
+  let picks;
   try {
-    const picks = JSON.parse(pickRes.rows[0].picks);
+    picks = JSON.parse(pickRes.rows[0].picks);
     console.log("\n\n fetching from rapidapi \n\n");
   } catch (err) {
     res.status(500).send({ message: "Bad data" });
