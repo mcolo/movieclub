@@ -7,11 +7,11 @@ import dotenv from "dotenv";
 import { corsOptions } from "./utils/cors.js";
 import { suggestions } from "./utils/trie.js";
 import { getMovieData } from "./utils/movieData.js";
-import { startCronJob } from "./utils/keepAlive.js";
+// import { startCronJob } from "./utils/keepAlive.js";
 
 dotenv.config();
 // prevent heroku dyno from sleeping
-startCronJob();
+// startCronJob();
 
 const app = express();
 const port = process.env.PORT || 3000;
